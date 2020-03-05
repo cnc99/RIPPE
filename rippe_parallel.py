@@ -307,9 +307,9 @@ def single_experiment(dic_params, tool_name, object_name, action_name, idx):
   success = False
   while not success:
       try:
-          with stdout_redirected():
-              robotID = load_robot(tool_name,p)
-              toolID = robotID[0]
+          #with stdout_redirected():
+          robotID = load_robot(tool_name,p)
+          toolID = robotID[0]
 
           if (toolID == objID):
               raise ValueError
