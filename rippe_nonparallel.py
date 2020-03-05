@@ -139,13 +139,14 @@ def reset_world():
 
 
 def load_object():
-    boxId = p.loadURDF("/models/object.urdf")
+    boxId = p.loadURDF(os.path.join("models","object.urdf"))
     return boxId
 
 
 def load_robot(toolname):
     print(toolname)
-    toolId = p.loadSDF("models/{}.sdf".format(toolname))
+    #toolId = p.loadSDF("models/{}.sdf".format(toolname))
+    toolId = p.loadSDF(os.path.join("models","{}.sdf".format(toolname)))
     return toolId
 
 
@@ -223,7 +224,7 @@ def gen_run_experiment(
         # actions=("tap_from_right",),
 ):
     # get properties:
-    object_mesh = stl.Mesh.from_file("models/cvx_{}.stl".format(object_name))
+    object_mesh = stl.Mesh.from_file(os.path.join("models","cvx_{}.stl".format(object_name)))
     props = object_mesh.get_mass_properties()
     center_of_mass = props[1]
     inertia_tensor = props[2]
@@ -271,9 +272,15 @@ def gen_run_experiment(
         sim_eff_history = np.zeros((N_EXPERIMENTS, 2))
         for tool_name in tools:
             for action_name in actions:
+                #import pdb;pdb.set_trace()
                 target_pos, target_var, gnd_weight, mdist, real_eff_history = load_experiment(
-                    "affordance-datasets/visual-affordances-of-objects-and-tools/{}/{}/{}/effData.txt"
-                    .format(tool_name, object_name, action_name),
+                    #"affordance-datasets/visual-affordances-of-objects-and-tools/{}/{}/{}/effData.txt"
+                    #.format(tool_name, object_name, action_name),
+                    os.path.join("affordance-datasets","visual-affordances-of-objects-and-tools",
+                                 "{}".format(tool_name),
+                                 "{}".format(object_name),
+                                 "{}".format(action_name),
+                                 "effData.txt"),
                     get_eff_data=True)
                 for iter in range(N_EXPERIMENTS):
                     success = False
@@ -282,9 +289,9 @@ def gen_run_experiment(
                             if WATCHDOG:
                                 signal.alarm(10)
 
-                            with stdout_redirected():
-                                robotID = load_robot(tool_name)
-                                toolID = robotID[0]
+                            #with stdout_redirected():
+                            robotID = load_robot(tool_name)
+                            toolID = robotID[0]
 
                             nonlocal objID
                             if (toolID == objID):
@@ -522,7 +529,7 @@ if __name__ == "__main__":
     randn = np.random.random(1)[0]
 
     for obj in object_name:
-        fname = "saved/gp_fixed_{}.bz2".format(obj)
+        fname = os.path.join("saved","gp_fixed_{}.bz2".format(obj))
         logging.info("file name: " + fname)
         optimize(param_names, fname, obj, opt_f=gp_minimize)
         test(param_names, fname, obj)
